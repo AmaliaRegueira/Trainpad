@@ -4,21 +4,19 @@ require_once('aplicacion.php');
 
 class Usuario {
 
+    private $fecha;
+    private $inicio;
+    private $actividad;
+    private $fin;
     private $idPulsera;
-    private $nombre;
-    private $email;
-    private $password;
-    private $edad;
-    private $rol;
 
 
-    private function __construct($nombre, $email, $password, $edad, $rol){
+    private function __construct($fecha, $inicio, $actividad, $fin){
         /*$this->idPulsera= $idPulsera;*/
-        $this->nombre= $nombre;
-        $this->email = $email;
-        $this->password = $password;
-        $this->edad = $edad;
-        $this->rol = $rol;
+        $this->fecha= $fecha;
+        $this->inicio = $inicio;
+        $this->actividad = $actividad;
+        $this->fin = $fin;
     }
 
     public function idPulsera(){ 
@@ -83,13 +81,17 @@ class Usuario {
     }
     
     /* Crea un nuevo usuario con los datos introducidPulseraos por parámetro. */
-    public static function crea($idPulsera, $nombre, $email, $password,$edad, $rol){
-        $user = self::buscaUsuario($idPulsera);
-        if ($user) {
+    public static function crea($fecha, $inicio, $actividad, $fin,$usuario){
+        $sesion = self::buscaSesion($fecha, $inicio, $fin);
+        if ($sesion) {
             return false;
         }
-        $user = new Usuario($nombre, $email, password_hash($password, PASSWORD_DEFAULT),$edad, $rol);
-        $user->idPulsera = $idPulsera;
+        $sesino = self::interfiereFuncion($fecha, $inicio, $fin);
+        if($sesion){
+            return false;
+        }
+        $sesion = new Sesion($fecha, $inicio, $actividad, $fin);
+        $sesion->idPulsera = $idPulsera;
         return self::inserta($user);
     }
     
@@ -116,16 +118,15 @@ class Usuario {
     private static function actualiza($usuario){
         $app = Aplicacion::getInstance();
         $conn = $app->conexionBD();
-        $query=sprintf("UPDATE deportista U SET Nombre = '%s', Email='%s', Password='%s', Edad='%s', Rol='%s' WHERE U.idPulsera=%i"
+        $query=sprintf("UPDATE sesion U SET Fecha = '%s', HoraIni='%s', HoraFin='%s', Actividad='%s' WHERE U.idPulsera=%i"
             , $conn->real_escape_string($usuario->nombre)
             , $conn->real_escape_string($usuario->email)
             , $conn->real_escape_string($usuario->password)
             , $conn->real_escape_string($usuario->edad)
-            , $conn->real_escape_string($usuario->rol)
             , $usuario->idPulsera);
         if ( $conn->query($query) ) {
             if ( $conn->affected_rows != 1) {
-                echo "No se ha podidPulserao actualizar el usuario: " . $usuario->idPulsera;
+                echo "No se ha podido actualizar el usuario: " . $usuario->idPulsera;
                 exit();
             }
         } else {
@@ -135,32 +136,5 @@ class Usuario {
         
         return $usuario;
     }
-
-/*    public static function memes($nombre){
-        $usuario = self::buscaUsuario($nombre);
-        $app = Aplicacion::getInstance();
-        $conn = $app->conexionBD();
-        $query=sprintf("SELECT link_img FROM memes WHERE idPulsera_autor= '%s'", $conn->real_escape_string($usuario->idPulsera()));
-        $rs = $conn->query($query);
-        $rt=false;
-      
-        if ($rs){
-            if($rs->num_rows>0){
-                
-                $rt=array();
-                $i = 0;
-                while($row = mysqli_fetch_assoc($rs)){
-                    $rt[$i] = $row['link_img'];
-                    $i = $i + 1;
-                }
-            }
-            $rs->free();
-        }
-        else{
-            echo "Error al consultar en la BD: (" . $conn->errno . ") " . utf8_encode($conn->error);
-            exit(); 
-        }
-        return $rt;
-    }*/
     
 }

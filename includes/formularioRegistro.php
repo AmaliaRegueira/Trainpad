@@ -110,14 +110,15 @@ class formularioRegistro extends Form{
                 $erroresFormulario[] = "El usuario ya existe";
             } else {
                 $_SESSION['login'] = true;
-                $_SESSION['nombre'] = $username;
+                $_SESSION['idPulsera'] = $idPulsera;
+                $_SESSION['nombre']= $username;
                 //header('Location: index.php');
 
                 /*Crea la carpeta correspondiente al usuario en /mysql/img/ (relacionado con
                 el procesamiento del formularioSubirMeme)*/
 
                 
-                $carpeta = './mysql/img/'.$username;
+                $carpeta = './mysql/img/'.$isPulsera;
             
                 var_dump($carpeta);
 

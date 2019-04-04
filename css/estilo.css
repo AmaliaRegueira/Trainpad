@@ -7,7 +7,7 @@
 	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
-	font-family: Arial;
+	
 }
 
 body {
@@ -29,10 +29,10 @@ body {
 .cabecera {
 	display: flex;
 	flex-direction: row;
-	background-color: #935347;
-	color: #ede9ce;
+	background-color: #568ea6;
 	height:126px;
 }
+
 
 .cabecera #link{
 	display: flex;
@@ -49,33 +49,34 @@ body {
 
 .cabecera #link p{
 	padding-top: 6px;
-	padding-right: 6px;
-	color: #ede9ce;
+	/*padding-right: 6px;*/
+	color: #0a0a0a;
+	color: white;
 }
 
 .cabecera #link a{
 	/*margin: 0 3px;*/
-	padding: 6px 8px;
+	padding: 6px;
 	text-align: center;
 	text-decoration: none;
-	color: #ede9ce;
+	color: white;
 }
 
 .cabecera #link a:hover{ /*cuando pasas por encima*/	
-	background-color: #ede9ce;
-	color: #935347;
+	background-color: #ffffff;
+	color: #16174f;
 	border-radius: 5px;
 }
 
 .cabecera #titulo{
 	display: flex;
-	color: #ede9ce;
 	width: 100%;
-	justify-content: center;
 	align-items: center;
-	font-family: arial;
-	
-	font-weight: bold;
+	color: white;	
+	font-family: American Typewriter, serif;
+	font-size: 200%;
+	padding-left: 40px;
+	/*font-weight: bold;*/
 }
 
 /*--------------------------------------------------------------------------------------------------------------------------------------*/
@@ -85,6 +86,7 @@ body {
 	display: flex;
 	flex-direction: row;
 	min-height: 800px;
+	background-color: white;
 }
 
 /* div contenido*/
@@ -92,39 +94,73 @@ body {
 	display: flex;
 	flex-direction: column;
 	/*justify-content: center;*/
-	align-items: center;
 	width: 100%;
 	padding: 2% 2%;
 }
 
-/*editar perfil*/
+/*editar perfil
 .principal #contenido a {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	padding: 1% 1%;
-	width: 100px;
 	color: black;
 	border-radius: 5px;
 	text-decoration: none;
+
+
 }
 
 .principal #contenido a:hover {
+
 	background-color: black;
 	color: white;
 	border-radius: 5px;
+}*/
+
+.principal #contenido #edit{
+	display: flex;
+	justify-content: center;
+	position:absolute;
+	top: 70px;
+	right: 20px;
+	align-items: center;
 }
+
+.principal #cotenido #edit a{
+	width: 20%;
+	justify-content: center;
+	width: 100px;
+	padding: 1px 1px;	
+}
+
+.principal #contenido #entrenamiento{
+	display: flex;
+	width: 100%;
+	padding-top: 20px;
+}
+
+.principal #contenido #entrenamiento a{
+	display: flex;
+	position: absolute;
+	top: 300px;
+	right: 40px;
+}
+
 
 /* panel del perfil con al foto y los datos del usuario*/
 .principal #contenido #panel-perfil {
 	display: flex;
 	flex-direction: row;
-	justify-content: space-around;
+	justify-content: left;
+	width: 100%;
 }
 
 .principal #contenido #panel-perfil #foto #img-perfil {
 	width: 120px;
 	height: 120px;
+	top: 0;
+	left:0;
+
 }
 
 .principal #contenido #panel-perfil #perfil {
@@ -139,6 +175,12 @@ body {
 	padding: 1% 1%; 
 }
 
+.principal #contenido #panel-perfil a{
+	display:flex;
+	justify-content: right;
+	right:0;
+}
+
 /*panel del perfil donde estan contenidos los memes de usuario */
 .principal #contenido #panel-memes #meme {
 	width: 150px;
@@ -148,14 +190,24 @@ body {
 .principal #contenido #formRegistro{
 	display: flex;
 	flex-direction: column;
-	justify-content:center;
+	justify-content:left;
 	align-items: center;
 	padding: 2%;
 
 }
 
-.principal #contenido #formRegistr input{
-	font-weight: normal;
+.principal #contenido #formLogin{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.principal #contenido #formEntrenamiento{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
 }
 
 .grupo-control{
@@ -163,7 +215,8 @@ body {
 	flex-direction: row;
 	justify-content: space-between;
 	width: 350px;
-	padding-top: 5%;
+	padding-left: 5%;
+	padding-top: 2%;
 }
 
 .checkbox{
@@ -182,12 +235,12 @@ body {
 
 .boton button{
 	background-color: #64809D; /* Green */
-	  border: none;
-	  color: white;
-	  padding: 15px 32px;
-	  text-align: center;
-	  text-decoration: none;
-	  display: inline-block;
+	border: none;
+	color: white;
+	padding: 15px 32px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
 }
 
 /*--------------------------------------------------------------------------------------------------------------------------------------*/

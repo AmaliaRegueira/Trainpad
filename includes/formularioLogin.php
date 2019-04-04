@@ -20,16 +20,13 @@ class formularioLogin extends Form{
      */
     protected function generaCamposFormulario($datosIniciales){
 
-        $html = '<fieldset>';
-        $html .= '<legend>Usuario y contraseña</legend>';
-        $html .= '<div class="grupo-control">';                            
-        $html .= '<label>Nombre de usuario:</label> <input type="text" name="nombreUsuario" />';
+        $html = '<div class="grupo-control">';                            
+        $html .= '<label>Id Pulsera:</label> <input type="text" name="idPulsera" />';
         $html .= '</div>';
         $html .= '<div class="grupo-control">';
         $html .= '<label>Password:</label> <input type="password" name="password" />';
         $html .= '</div>';
         $html .= '<div class="grupo-control"><button type="submit" name="login">Entrar</button></div>';
-        $html .= '</fieldset>';
 
         return $html;
     }
@@ -38,9 +35,9 @@ class formularioLogin extends Form{
 
         $erroresFormulario = array();
 
-        $username = isset($datos['nombreUsuario']) ? $datos['nombreUsuario'] : null;
+        $idPulsera = isset($datos['idPulsera']) ? $datos['idPulsera'] : null;
 
-        if ( empty($username) ) {
+        if ( empty($idPulsera) ) {
             $erroresFormulario[] = "El nombre de usuario no puede estar vacío";
         }
 
@@ -53,15 +50,18 @@ class formularioLogin extends Form{
             //$app esta incluido en config.php
 
 
-            $usuario = Usuario::buscaUsuario($username);
+            $usuario = Usuario::buscaUsuario($idPulsera);
 			
             if (!$usuario) {
                 $erroresFormulario[] = "El usuario o el password no coinciden";
             }
             else{
+                
+                
                 if ($usuario->compruebaPassword($password)) {
                     $_SESSION['login'] = true;
-                    $_SESSION['nombre'] = $username;
+                    $_SESSION['idPulsera'] = $idPulsera;
+                    $_SESSION['nombre'] = $usuario->nombre();
                     $_SESSION['esAdmin'] = strcmp($fila['rol'], 'admin') == 0 ? true : false;
                     //header('Location: index.php');
                     return "index.php";
@@ -75,3 +75,4 @@ class formularioLogin extends Form{
     }
 
 }
+?>

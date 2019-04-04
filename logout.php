@@ -12,4 +12,4 @@ unset($_SESSION["nombre"]);
 session_destroy();
 
 
-header("Location: ../index.php");
+header("Location: ./index.php");
