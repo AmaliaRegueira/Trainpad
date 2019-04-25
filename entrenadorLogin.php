@@ -3,7 +3,7 @@
 //Inicio del procesamiento
 
 require_once("includes/config.php");
-require_once("includes/formularioLogin.php");
+require_once("includes/formularioLoginE.php");
 
 ?>
 
@@ -32,7 +32,7 @@ require_once("includes/formularioLogin.php");
 					
 
 					<?php
-						$formulario = new formularioLogin("login", array( 'action' => 'login.php'));
+						$formulario = new formularioLoginE("loginEntrenador", array( 'action' => 'entrenadorLogin.php'));
 						$formulario->gestiona();
 					?>
 

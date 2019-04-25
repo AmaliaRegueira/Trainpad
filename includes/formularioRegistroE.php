@@ -1,9 +1,9 @@
 <?php
 
 require_once('form.php');
-require_once('usuario.php');
+require_once('entrenador.php');
 
-class formularioRegistro extends Form{
+class formularioRegistroE extends Form{
 
     public function  __construct($formId, $opciones = array() ){
         parent::__construct($formId, $opciones);
@@ -30,10 +30,6 @@ class formularioRegistro extends Form{
         $html .= '</div>';
 
         $html .= '<div class="grupo-control">';
-        $html .= '<label>idPulsera:</label><input class="control" type="text" name="idPulsera">';
-        $html .= '</div>';
-
-        $html .= '<div class="grupo-control">';
         $html .= '<label>Password:</label><input class="control" type="password" name="password" />';
         $html .= '</div>';
 
@@ -41,11 +37,6 @@ class formularioRegistro extends Form{
         $html .= '<label>Repita Password:</label><input class="control" type="password" name="password2" />';
         $html .= '</tr>';
         $html .= '</div>';
-
-        $html .= '<div class="grupo-control"';
-        $html .= '<label>Edad:</lable><input class="control" type="text" name="edad">';
-        $html .= '</div>';
-
 
         $html .= '<div class="checkbox">';
         $html .= '<div>';
@@ -76,10 +67,6 @@ class formularioRegistro extends Form{
             $erroresFormulario[] = "El email no tiene un formato valido.";
         }
 
-        $idPulsera = isset($_POST['idPulsera']) ? $_POST['idPulsera'] : null;
-        if (empty($idPulsera) || mb_strlen($idPulsera)<10){
-            $erroresFormulario[]= "El id introducido para la pulsera no es valido";
-        }
         
         $password = isset($_POST['password']) ? $_POST['password'] : null;
         if ( empty($password) || mb_strlen($password) < 5 ) {
@@ -88,11 +75,6 @@ class formularioRegistro extends Form{
         $password2 = isset($_POST['password2']) ? $_POST['password2'] : null;
         if ( empty($password2) || strcmp($password, $password2) !== 0 ) {
             $erroresFormulario[] = "Las passwords deben coincidir.";
-        }
-
-        $edad = isset($_POST['edad']) ? $_POST['edad'] : null;
-        if (empty($edad) || $edad<18){
-            $erroresFormulario[]= "La edad no es valida, debe tener al menos 18 años.";
         }
 
 
@@ -107,31 +89,33 @@ class formularioRegistro extends Form{
         }
         
         if (count($erroresFormulario) === 0) {
-            $usuario = Usuario::crea($idPulsera, $username, $email, $password, $edad, 'deportista');
+            $usuario = Entrenador::crea($username, $email, $password, 'entrenador');
             
             if (! $usuario ) {
                 $erroresFormulario[] = "El usuario ya existe";
             } else {
                 $_SESSION['login'] = true;
-                $_SESSION['idPulsera'] = $idPulsera;
+                $_SESSION['idPulsera'] = $usuario->id();
                 $_SESSION['nombre']= $username;
                 $_SESSION['isAdmin'] =($usuario->rol()==='admin')? true : false;
+                if(!$_SESSION['isAdmin']){
+                    $_SESSION['isTrainer']= true;
+                }
                 //header('Location: index.php');
 
                 /*Crea la carpeta correspondiente al usuario en /mysql/img/ (relacionado con
                 el procesamiento del formularioSubirMeme)*/
 
                 
-                $carpeta = './mysql/img/'.$isPulsera;
+                $carpeta = './mysql/img/'.$usuario->id();
             
-                var_dump($carpeta);
 
                 if (!file_exists($carpeta)) {
                     mkdir($carpeta, 0777, true);
                 }
 
 
-                return "index.php";
+                /*return "index.php";*/
             }
         }
 

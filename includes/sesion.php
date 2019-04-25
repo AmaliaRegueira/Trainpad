@@ -2,7 +2,7 @@
 
 require_once('aplicacion.php');
 
-class Usuario {
+class Sesion {
 
     private $fecha;
     private $inicio;
@@ -19,41 +19,38 @@ class Usuario {
         $this->fin = $fin;
     }
 
-    public function idPulsera(){ 
-        return $this->idPulsera; 
+    public function inicio(){ 
+        return $this->inicio; 
     }
 
-    public function nombre(){
-        return $this->nombre;
+    public function fecha(){
+        return $this->fecha;
     }
-    public function edad(){
-        return $this->edad;
+    public function fin(){
+        return $this->fin;
     }
 
-    public function rol(){ 
-        return $this->rol;
+    public function actividad(){ 
+        return $this->actividad;
      }
-
-    
-
-    public function cambiaPassword($nuevoPassword){
-        $this->password = self::hashPassword($nuevoPassword);
-    }
-
 
     /* Devuelve un objeto Usuario con la información del usuario $nombre,
      o false si no lo encuentra*/
-    public static function buscaUsuario($idPulsera){
+    public static function buscaSesion($sesion){
         $app = Aplicacion::getInstance();
         $conn = $app->conexionBD();
 
-        $query = sprintf("SELECT * FROM deportista U WHERE U.idPulsera = '%s'", $conn->real_escape_string($idPulsera));
+        $query = sprintf("SELECT * FROM sesión U WHERE U.idPulsera = '%s' AND U.Fecha='%s' AND U.HoraIni='%s' AND U.HoraFin= '%s'"
+            ,$conn->real_escape_string($sesion->idPulsera)
+            ,$conn->real_escape_string($sesion->fecha)
+            ,$conn->real_escape_string($sesion->inicio)
+            ,$conn->real_escape_string($sesion->fin));
         $rs = $conn->query($query);
         $result = false;
         if ($rs) {
             if ( $rs->num_rows == 1) {
                 $fila = $rs->fetch_assoc();
-                $user = new Usuario($fila['Nombre'], $fila['Email'], $fila['Password'], $fila['Edad'], $fila['Rol']);
+                $user = new Sesion($fila['Fecha'], $fila['HoraIni'], $fila['Deporte'], $fila['HoraFin']);
                 $user->idPulsera = $fila['idPulsera'];
                 $result = $user;
             }
@@ -65,54 +62,70 @@ class Usuario {
         return $result;
     }
 
-    /*Comprueba si la contraseña introducidPulseraa coincidPulserae con la del Usuario.*/
-    public function compruebaPassword($password){
-        return password_verify($password, $this->password);
-    }
 
-    /* Devuelve un objeto Usuario si el usuario existe y coincidPulserae su contraseña. En caso contrario,
-     devuelve false.*/
-    public static function login($idPulsera, $password){
-        $user = self::buscaUsuario($idPulsera);
-        if ($user && $user->compruebaPassword($password)) {
-            return $user;
+    private static function interfiereSesion($sesion){
+        $app = Aplicacion::getInstance();
+        $conn = $app->conexionBD();
+
+        $query = sprintf("SELECT * FROM sesión U WHERE U.idPulsera='%i' AND U.Fecha='%s' AND U.HoraIni BETWEEN '%s' AND '%s'"
+        , $conn->real_escape_string($sesion->idPulsera)
+        , $conn->real_escape_string($sesion->fecha())
+        , $conn->real_escape_string($sesion->inicio())
+        , $conn->real_escape_string($sesion->fin()));
+
+        $rs = $conn->query($query);
+        
+        if($rs){
+            if ($rs->num_rows>0){
+                return true;
+            }
+            
+        }
+        else{
+            echo "Error al consultar en la BD: (". $conn->errno .")". utf8_encode($conn->error);
+            exit;
         }
         return false;
     }
     
     /* Crea un nuevo usuario con los datos introducidPulseraos por parámetro. */
-    public static function crea($fecha, $inicio, $actividad, $fin,$usuario){
-        $sesion = self::buscaSesion($fecha, $inicio, $fin);
-        if ($sesion) {
-            return false;
-        }
-        $sesino = self::interfiereFuncion($fecha, $inicio, $fin);
-        if($sesion){
-            return false;
-        }
+    public static function crea($fecha, $inicio, $actividad, $fin,$id){
         $sesion = new Sesion($fecha, $inicio, $actividad, $fin);
-        $sesion->idPulsera = $idPulsera;
-        return self::inserta($user);
+
+        $sesion->idPulsera=$id;
+
+        $existe = self::buscaSesion($sesion);
+        
+        $interfiere = self::interfiereSesion($sesion);
+        var_dump($existe);
+        if ($existe || $interfiere) {
+            var_dump("entra");
+            return false;
+
+        }
+        
+         $ret =self::insert($sesion);
+         return $ret;
     }
     
-    private static function inserta($usuario){
+    private static function insert($sesion){
         $app = Aplicacion::getInstance();
         $conn = $app->conexionBD();
-        $query=sprintf("INSERT INTO deportista(idPulsera, Nombre, Email, Password, Edad, Rol) VALUES('%s', '%s', '%s', '%s', '%s', '%s')"
-            , $conn->real_escape_string($usuario->idPulsera)
-            , $conn->real_escape_string($usuario->nombre)
-            , $conn->real_escape_string($usuario->email)
-            , $conn->real_escape_string($usuario->password)
-            , $conn->real_escape_string($usuario->edad)
-            , $conn->real_escape_string($usuario->rol));
+        $query=sprintf("INSERT INTO sesión(Fecha, HoraIni, HoraFin, Deporte, idPulsera) VALUES('%s', '%s', '%s', '%s', '%s')"
+            , $conn->real_escape_string($sesion->fecha)
+            , $conn->real_escape_string($sesion->inicio)
+            , $conn->real_escape_string($sesion->fin)
+            , $conn->real_escape_string($sesion->actividad)
+            , $conn->real_escape_string($sesion->idPulsera));
 
         if ( $conn->query($query) ){
-            $usuario->idPulsera = $conn->insert_idPulsera;
+            $sesion->idPulsera = $conn->insert_idPulsera;
         } else {
             echo "Error al insertar en la BD: (" . $conn->errno . ") " . utf8_encode($conn->error);
             exit();
         }
-        return $usuario;
+        
+        return $sesion;
     }
     
     private static function actualiza($usuario){

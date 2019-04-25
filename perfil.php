@@ -24,9 +24,16 @@
 
 					<div id="edit">
 						<a href='editarPerfil.php' id='edit'>Editar</a>
-					</div>					
-					
+					</div>	
+
+					<div class="nombre">
+							<?php
+								echo "<h1>".$_SESSION['nombre']."</h1>";
+								
+							?>
+					</div>
 					<div id="panel-perfil">
+						
 						<div id="foto">
 						<?php
 							$imgPerfil = "mysql/img/".$_SESSION["nombre"]."/fotoPerfil.jpg";
@@ -35,14 +42,39 @@
 
 	                	</div>
 	                	<div id="perfil">
-							<?php
-								$usuario = Usuario::BuscaUsuario($_SESSION["idPulsera"]);
-								//echo "Nombre: ".$_SESSION["nombre"];
+	                		<?php
+	                				$usuario = $_SESSION['usuario'];
+	                				var_dump($_SESSION['usuario']);
+									$correo= $usuario->correo();
+	                		?>
+	                		<div class="grupo-control">
+								<?php
+									echo "<h3>Correo:</h3>".$correo;
+								?>
+							</div>
+							<div class= "grupo-control">
+								<?php  
+									if($usuario->rol()=== 'deportista'){
+										$edad = $usuario->edad();
+										echo "<h3>Edad:</h3>".$edad;
+										?>
+										<div class= "grupo-control">
+											<?php 
+										
+												$idPulsera = $_SESSION['idPulsera'];
+												echo "<h3>Id de tu pulsera:</h3>".$idPulsera;
+											?>
+										</div>
+										<?php
+									}
+									else if($usuario->rol()=== 'entrenador'){
+										$nClientes = $usuario->nClientes();
+										echo "<h3>Numero de clientes:</h3>".$nClientes;
+									}
+									
+								?>
+							</div>
 
-								echo "Nombre:<p> ".$usuario->nombre()."</p>";
-								
-
-							?>
 						</div>
 					</div>
 					
@@ -52,6 +84,23 @@
 							<a href="entrenamiento.php">Subir nuevo entrenamiento</a>
 
 					</div>
+
+
+					<?php
+						if(isset($_SESSION['esEntrenador'])&& $_SESSION['esEntrenador']){
+							
+
+						}
+						else{
+							$entrenamiento = $usuario->sesiones($idPulsera);
+							if($entrenamiento){
+								echo $entrenamiento;
+							}
+							else echo "Introduce tu primer entrenamiento!";
+						}
+						
+					?>
+
 				</div>
 
 			</div>

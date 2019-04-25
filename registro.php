@@ -28,20 +28,19 @@ require_once("includes/formularioRegistro.php");
 
 				<div id="contenido">
 					<h1>Registro: </h1>
-					<div id="formRegistro">
-						<?php
-							$formulario = new formularioRegistro("registro");
-							$formulario->gestiona();
-						?>
-					</div>
+					
+					<?php
+						$formulario = new formularioRegistro("registro", array( 'action' => 'registro.php'));
+						$formulario->gestiona();
+					?>
 				</div>
 
 
 			</div>
 
-		<?php
+		<!--<?php
 			require("includes/comun/pie.php");
-		?>
+		?>-->
 
 	</div>
 

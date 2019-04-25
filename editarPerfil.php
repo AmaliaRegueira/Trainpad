@@ -1,9 +1,8 @@
 <?php
 
 //Inicio del procesamiento
-
 require_once("includes/config.php");
-require_once("includes/formularioLogin.php");
+require_once("includes/formularioEdit.php");
 
 ?>
 
@@ -12,7 +11,7 @@ require_once("includes/formularioLogin.php");
 <head>
 	<link rel="stylesheet" type="text/css" href="css/estilo.css" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<title>Iniciar Sesión | Asteyo</title>
+	<title>Registro</title>
 </head>
 
 <body>
@@ -20,32 +19,28 @@ require_once("includes/formularioLogin.php");
 	<div id="contenedor">
 
 		<?php
-
 			require("includes/comun/cabecera.php");
-
 		?>
-
 
 			<div class="principal">
 
+				<!--<?php require("includes/comun/sidebarIzq.php"); ?>-->
+
 				<div id="contenido">
-					
-
-					<?php
-						$formulario = new formularioLogin("login", array( 'action' => 'login.php'));
-						$formulario->gestiona();
-					?>
-
+					<h1>Editar perfil: </h1>
+							<?php
+								$formulario = new formularioEdit("editar", array( 'action' => 'editarPerfil.php'));
+								$formulario->gestiona();
+							?>
 					
 				</div>
+
+
 			</div>
 
 		<?php
-
 			require("includes/comun/pie.php");
-
 		?>
-
 
 	</div>
 

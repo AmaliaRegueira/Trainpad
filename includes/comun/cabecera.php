@@ -23,7 +23,9 @@
 			} else {
 				echo "<a href='login.php' class='login'>Iniciar sesión</a>
 				<p>|</p> 
-				<a href='registro.php' class='registro'>Registrarse</a>";
+				<a href='registro.php' class='registro'>Registrarse</a>
+				<p>|<p>
+				<a href='entrenadorLogin.php' class='entrenador'>Soy Entrenador</a>";
 			}
 		?>
 	</div>

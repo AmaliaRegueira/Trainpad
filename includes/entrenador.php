@@ -2,34 +2,29 @@
 
 require_once('aplicacion.php');
 
-class Usuario {
+class Entrenador {
 
-    private $idPulsera;
+    private $id;
     private $nombre;
     private $email;
     private $password;
-    private $edad;
     private $rol;
 
 
-    private function __construct($nombre, $email, $password, $edad, $rol){
+    private function __construct($nombre, $email, $password, $rol){
         /*$this->idPulsera= $idPulsera;*/
         $this->nombre= $nombre;
         $this->email = $email;
         $this->password = $password;
-        $this->edad = $edad;
         $this->rol = $rol;
     }
 
-    public function idPulsera(){ 
-        return $this->idPulsera; 
+    public function id(){ 
+        return $this->id; 
     }
 
     public function nombre(){
         return $this->nombre;
-    }
-    public function edad(){
-        return $this->edad;
     }
 
     public function email(){
@@ -42,25 +37,25 @@ class Usuario {
 
     
 
-    public function cambiaPassword($nuevoPassword){
+    public function changePassword($nuevoPassword){
         $this->password = self::hashPassword($nuevoPassword);
     }
 
 
     /* Devuelve un objeto Usuario con la información del usuario $nombre,
      o false si no lo encuentra*/
-    public static function buscaUsuario($idPulsera){
+    public static function searchTrainer($nombre){
         $app = Aplicacion::getInstance();
         $conn = $app->conexionBD();
 
-        $query = sprintf("SELECT * FROM deportista U WHERE U.idPulsera = '%s'", $conn->real_escape_string($idPulsera));
+        $query = sprintf("SELECT * FROM entrenador U WHERE U.Nombre = '%s'", $conn->real_escape_string($nombre));
         $rs = $conn->query($query);
         $result = false;
         if ($rs) {
             if ( $rs->num_rows == 1) {
                 $fila = $rs->fetch_assoc();
-                $user = new Usuario($fila['Nombre'], $fila['Email'], $fila['Password'], $fila['Edad'], $fila['Rol']);
-                $user->idPulsera = $fila['idPulsera'];
+                $user = new Usuario($fila['Nombre'], $fila['Email'], $fila['Password'], $fila['Rol']);
+                $user->id = $fila['id'];
                 $result = $user;
             }
             $rs->free();
@@ -79,7 +74,7 @@ class Usuario {
     /* Devuelve un objeto Usuario si el usuario existe y coincidPulserae su contraseña. En caso contrario,
      devuelve false.*/
     public static function login($idPulsera, $password){
-        $user = self::buscaUsuario($idPulsera);
+        $user = self::searchTrainer($idPulsera);
         if ($user && $user->compruebaPassword($password)) {
             return $user;
         }
@@ -87,25 +82,24 @@ class Usuario {
     }
     
     /* Crea un nuevo usuario con los datos introducidPulseraos por parámetro. */
-    public static function crea($idPulsera, $nombre, $email, $password,$edad, $rol){
-        $user = self::buscaUsuario($idPulsera);
+    public static function crea($nombre, $email, $password, $rol){
+        $user = self::searchTrainer($nombre);
         if ($user) {
             return false;
         }
-        $user = new Usuario($nombre, $email, password_hash($password, PASSWORD_DEFAULT),$edad, $rol);
-        $user->idPulsera = $idPulsera;
-        return self::inserta($user);
+        $user = new Entrenador($nombre, $email, password_hash($password, PASSWORD_DEFAULT), $rol);
+        
+        return self::insert($user);
     }
     
-    private static function inserta($usuario){
+    private static function insert($usuario){
         $app = Aplicacion::getInstance();
         $conn = $app->conexionBD();
-        $query=sprintf("INSERT INTO deportista(idPulsera, Nombre, Email, Password, Edad, Rol) VALUES('%s', '%s', '%s', '%s', '%s', '%s')"
-            , $conn->real_escape_string($usuario->idPulsera)
+        var_dump($usuario->rol);
+        $query=sprintf("INSERT INTO entrenador(Nombre, Email, Password, Rol) VALUES('%s', '%s', '%s', '%s')"
             , $conn->real_escape_string($usuario->nombre)
             , $conn->real_escape_string($usuario->email)
             , $conn->real_escape_string($usuario->password)
-            , $conn->real_escape_string($usuario->edad)
             , $conn->real_escape_string($usuario->rol));
 
         if ( !$conn->query($query) ){
@@ -118,27 +112,43 @@ class Usuario {
     private static function actualiza($usuario){
         $app = Aplicacion::getInstance();
         $conn = $app->conexionBD();
-        $query=sprintf("UPDATE deportista U SET Nombre = '%s', Email='%s', Password='%s', Edad='%s', Rol='%s' WHERE U.idPulsera=%i"
+
+        $user = buscaUsuario($usuario->nombre);
+
+        if ($user){
+            $query=sprintf("UPDATE entrenador U SET Nombre = '%s', Email='%s', Password='%s', Rol='%s' WHERE U.id=%i"
             , $conn->real_escape_string($usuario->nombre)
             , $conn->real_escape_string($usuario->email)
             , $conn->real_escape_string($usuario->password)
             , $conn->real_escape_string($usuario->edad)
             , $conn->real_escape_string($usuario->rol)
-            , $usuario->idPulsera);
-        if ( $conn->query($query) ) {
-            if ( $conn->affected_rows != 1) {
-                echo "No se ha podidPulserao actualizar el usuario: " . $usuario->idPulsera;
+            , $usuario->id);
+            if ( $conn->query($query) ) {
+                if ( $conn->affected_rows != 1) {
+                    echo "No se ha podido actualizar el usuario: " . $usuario->id;
+                    exit();
+                }
+            } else {
+                echo "Error al actualizar en la BD: (" . $conn->errno . ") " . utf8_encode($conn->error);
                 exit();
             }
-        } else {
-            echo "Error al actualizar en la BD: (" . $conn->errno . ") " . utf8_encode($conn->error);
-            exit();
         }
+        
         
         return $usuario;
     }
 
-    public static function sesiones($idPulsera){
+    public static function nClientes($usuario){
+        $app = Aplicacion::getInstance();
+        $conn = $app->conexionBD();
+
+        $query =sprintf("SELECT COUNT(id_entrenador) FROM entrenador_deportista WHERE idEntrenador='%s' "
+        , $conn->real_escape_string($usuario->id()));
+
+        var_dump($conn->query($query));
+    }
+
+    /*public static function sesiones($idPulsera){
         $usuario = self::buscaUsuario($idPulsera);
 
         $app = Aplicacion::getInstance();
@@ -171,7 +181,7 @@ class Usuario {
 
     }
 
-/*    public static function memes($nombre){
+    public static function memes($nombre){
         $usuario = self::buscaUsuario($nombre);
         $app = Aplicacion::getInstance();
         $conn = $app->conexionBD();

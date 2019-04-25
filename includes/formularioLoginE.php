@@ -4,7 +4,7 @@ require_once('form.php');
 require_once('usuario.php');
 
 
-class formularioLogin extends Form{
+class formularioLoginE extends Form{
 
     public function  __construct($formId, $opciones = array() ){
         parent::__construct($formId, $opciones);
@@ -21,13 +21,17 @@ class formularioLogin extends Form{
     protected function generaCamposFormulario($datosIniciales){
         $html ='<div class="formulario">';
         $html .= '<div class="grupo-control">';                            
-        $html .= '<label>Id de la pulsera:</label> <input type="text" name="id" />';
+        $html .= '<label>Nombre:</label> <input type="text" name="id" />';
         $html .= '</div>';
         $html .= '<div class="grupo-control">';
         $html .= '<label>Password:</label> <input type="password" name="password" />';
         $html .= '</div>';
         $html .= '<div class="grupo-control"><button type="submit" name="login">Entrar</button></div>';
+        $html .= '<div class="grupo-control">';
+        $html .= '<a href="entrenadorRegistro.php" class="entrenador">No estoy dado de alta.</a>';
+        $html .= '</div>';
         $html .='</div>';
+
 
         return $html;
     }
@@ -51,28 +55,25 @@ class formularioLogin extends Form{
             //$app esta incluido en config.php
 
 
-            $usuario = Usuario::buscaUsuario($id);
-           
+            $entrenador = Entrenador::searchTrainer($id);
 
 			
-            if (!$usuario) {
+            if (!$entrenador) {
                 $erroresFormulario[] = "El usuario o el password no coinciden";
             }
             else{
                 
                 
-                if ($usuario->compruebaPassword($password)) {
+                if ($entrenador->compruebaPassword($password)) {
                     $_SESSION['login'] = true;
-                    $_SESSION['usuario'] = $usuario;
-                    var_dump($_SESSION['usuario']);
-                    $_SESSION['nombre'] = $usuario->nombre();
-                    /*return "index.php";*/
-                } 
+                    $_SESSION['usuario'] = $entrenador;
+                    $_SESSION['nombre']= $entrenador->nombre();
+                }
                 else {
                     $erroresFormulario[] = "El usuario o el password no coinciden";
                 }
 
-            
+                
             }
         }
 

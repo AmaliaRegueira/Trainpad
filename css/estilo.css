@@ -96,6 +96,7 @@ body {
 	/*justify-content: center;*/
 	width: 100%;
 	padding: 2% 2%;
+
 }
 
 /*editar perfil
@@ -120,10 +121,9 @@ body {
 .principal #contenido #edit{
 	display: flex;
 	justify-content: center;
-	position:absolute;
-	top: 70px;
-	right: 20px;
-	align-items: center;
+	position: absolute;;
+	top:80px;
+	right:20px;
 }
 
 .principal #cotenido #edit a{
@@ -131,6 +131,15 @@ body {
 	justify-content: center;
 	width: 100px;
 	padding: 1px 1px;	
+}
+
+.nombre{
+	display: flex;
+	flex-direction: row;
+	justify-content: left;
+	align-items: center;
+	width: 15%;
+	
 }
 
 .principal #contenido #entrenamiento{
@@ -196,6 +205,15 @@ body {
 
 }
 
+.formulario{
+	display: flex;
+	flex-direction: column;
+	justify-content:left;
+	align-items: center;
+	padding: 2%;
+	width: 100%;
+}
+
 .principal #contenido #formLogin{
 	display: flex;
 	justify-content: center;
@@ -214,7 +232,7 @@ body {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
-	width: 350px;
+	width: 450px;
 	padding-left: 5%;
 	padding-top: 2%;
 }

@@ -1,7 +1,7 @@
 <?php
 
 require_once('form.php');
-require_once('usuario.php');
+require_once('sesion.php');
 
 
 class formularioEntrenamiento extends Form{
@@ -19,7 +19,7 @@ class formularioEntrenamiento extends Form{
      * @return string HTML asociado a los campos del formulario.
      */
     protected function generaCamposFormulario($datosIniciales){
-        $html ='<div id="formEntrenamiento">';
+        $html ='<div class="formulario">';
         $html .= '<div class="grupo-control">';
         
         $html .= '<label>Fecha:</label><input class="control" type="date" name="fecha" />';
@@ -39,6 +39,7 @@ class formularioEntrenamiento extends Form{
 
         $html .= '<div class="boton"><button type="submit" name="registro">Registrar</button></div>';
         $html .= '</div>';
+
 
         return $html;
     }
@@ -64,8 +65,10 @@ class formularioEntrenamiento extends Form{
         }
 
         $fin = isset($datos['fin']) ? $datos['fin'] : null;
-        if(empty($actividad)){
-            $erroresFormulario[] = "La hora de fin no puede ser vacío";
+        if(empty($fin)){
+            $erroresFormulario[] = "La hora de fin no puede ser vacío.";
+        }else if ($fin < $inicio){
+            $erroresFormulario[] = "La hora de finalización debe ser mayor que la de inicio.";
         }
 
         if (count($erroresFormulario) === 0) {
@@ -74,8 +77,13 @@ class formularioEntrenamiento extends Form{
             $id=$_SESSION['idPulsera'];
                 
             $sesion=Sesion::crea($fecha, $inicio, $actividad, $fin, $id);
-                
-            return "index.php";
+            
+            if(!$sesion){
+                $erroresFormulario[] = "La sesión ya existe o interfiere con una existente.";
+            }else{
+                return "index.php";
+            }
+            
                 
             
         }
