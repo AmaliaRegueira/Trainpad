@@ -6,7 +6,7 @@ require_once('aplicacion.php');
  * Parámetros de conexión a la BD
  */
 define('BD_HOST', 'localhost');
-define('BD_NAME', 'ABD');
+define('BD_NAME', 'trainpad');
 define('BD_USER', 'root');
 define('BD_PASS', '');
 

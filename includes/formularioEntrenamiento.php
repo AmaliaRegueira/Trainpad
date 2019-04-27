@@ -74,14 +74,14 @@ class formularioEntrenamiento extends Form{
         if (count($erroresFormulario) === 0) {
             //$app esta incluido en config.php
 
-            $id=$_SESSION['idPulsera'];
+            $id=$_SESSION['id'];
                 
             $sesion=Sesion::crea($fecha, $inicio, $actividad, $fin, $id);
             
             if(!$sesion){
                 $erroresFormulario[] = "La sesión ya existe o interfiere con una existente.";
             }else{
-                return "index.php";
+                #return "perfil.php";
             }
             
                 

@@ -4,7 +4,6 @@ require_once('aplicacion.php');
 
 class Entrenador {
 
-    private $id;
     private $nombre;
     private $email;
     private $password;
@@ -19,10 +18,6 @@ class Entrenador {
         $this->rol = $rol;
     }
 
-    public function id(){ 
-        return $this->id; 
-    }
-
     public function nombre(){
         return $this->nombre;
     }
@@ -35,10 +30,12 @@ class Entrenador {
         return $this->rol;
      }
 
-    
+    public function setUserName($name){
+        $this->nombre = $name;
+    }
 
-    public function changePassword($nuevoPassword){
-        $this->password = self::hashPassword($nuevoPassword);
+     public function cambiaPassword($nuevoPassword){
+        $this->password = password_hash($nuevoPassword, PASSWORD_DEFAULT);
     }
 
 
@@ -51,11 +48,11 @@ class Entrenador {
         $query = sprintf("SELECT * FROM entrenador U WHERE U.Nombre = '%s'", $conn->real_escape_string($nombre));
         $rs = $conn->query($query);
         $result = false;
+        
         if ($rs) {
             if ( $rs->num_rows == 1) {
                 $fila = $rs->fetch_assoc();
-                $user = new Usuario($fila['Nombre'], $fila['Email'], $fila['Password'], $fila['Rol']);
-                $user->id = $fila['id'];
+                $user = new Entrenador($fila['Nombre'], $fila['Email'], $fila['Password'], $fila['Rol']);
                 $result = $user;
             }
             $rs->free();
@@ -73,8 +70,8 @@ class Entrenador {
 
     /* Devuelve un objeto Usuario si el usuario existe y coincidPulserae su contraseña. En caso contrario,
      devuelve false.*/
-    public static function login($idPulsera, $password){
-        $user = self::searchTrainer($idPulsera);
+    public static function login($nombre, $password){
+        $user = self::searchTrainer($nombre);
         if ($user && $user->compruebaPassword($password)) {
             return $user;
         }
@@ -95,7 +92,6 @@ class Entrenador {
     private static function insert($usuario){
         $app = Aplicacion::getInstance();
         $conn = $app->conexionBD();
-        var_dump($usuario->rol);
         $query=sprintf("INSERT INTO entrenador(Nombre, Email, Password, Rol) VALUES('%s', '%s', '%s', '%s')"
             , $conn->real_escape_string($usuario->nombre)
             , $conn->real_escape_string($usuario->email)
@@ -109,20 +105,19 @@ class Entrenador {
         return $usuario;
     }
     
-    private static function actualiza($usuario){
+    public static function update($usuario,$nombre){
         $app = Aplicacion::getInstance();
         $conn = $app->conexionBD();
 
-        $user = buscaUsuario($usuario->nombre);
+        $user = self::searchTrainer($nombre);
 
         if ($user){
-            $query=sprintf("UPDATE entrenador U SET Nombre = '%s', Email='%s', Password='%s', Rol='%s' WHERE U.id=%i"
+            $query=sprintf("UPDATE entrenador U SET Nombre = '%s', Email='%s', Password='%s', Rol='%s' WHERE U.Nombre='%s'"
             , $conn->real_escape_string($usuario->nombre)
             , $conn->real_escape_string($usuario->email)
             , $conn->real_escape_string($usuario->password)
-            , $conn->real_escape_string($usuario->edad)
             , $conn->real_escape_string($usuario->rol)
-            , $usuario->id);
+            , $nombre);
             if ( $conn->query($query) ) {
                 if ( $conn->affected_rows != 1) {
                     echo "No se ha podido actualizar el usuario: " . $usuario->id;
@@ -134,40 +129,45 @@ class Entrenador {
             }
         }
         
-        
-        return $usuario;
+        return true;
     }
 
     public static function nClientes($usuario){
         $app = Aplicacion::getInstance();
         $conn = $app->conexionBD();
 
-        $query =sprintf("SELECT COUNT(id_entrenador) FROM entrenador_deportista WHERE idEntrenador='%s' "
-        , $conn->real_escape_string($usuario->id()));
+        $query =sprintf("SELECT Entrenador FROM deportistas WHERE Entrenador='%s' "
+        , $conn->real_escape_string($usuario->nombre()));
+        
+        if(!$conn->query($query)){
+               echo "Error en la busqueda: (". $conn->errno . ") ". utf8_encode($conn->error);
+           }
+        
+        $rt = $conn->query($query);
+        return $rt->num_rows;
 
-        var_dump($conn->query($query));
     }
 
-    /*public static function sesiones($idPulsera){
-        $usuario = self::buscaUsuario($idPulsera);
-
+    public static function clientes($usuario){
         $app = Aplicacion::getInstance();
-        $conn= $app->conexionBD();
-        $query = sprintf("SELECT * FROM sesión WHERE idPulsera='%s' ORDER BY Fecha DESC ", $conn->real_escape_string($usuario->idPulsera()));
+        $conn = $app->conexionBD();
+
+        $query =sprintf("SELECT * FROM deportistas WHERE Entrenador='%s' "
+        , $conn->real_escape_string($usuario->nombre()));
         $rs = $conn->query($query);
         $rt=false;
 
         if ($rs){
             if($rs->num_rows>0){
                 $row = mysqli_fetch_assoc($rs);
-                $rt = "<div class= 'grupo-control'";
-                $rt .= "<lable>Fecha: ".$row['Fecha']." Inicio: ".$row['HoraIni'];
+
+                $rt = "<div class= 'grupo'>";
+                $rt .= "<h3>Nombre: </h3><label>".$row['Nombre']."</label><h3> Correo: </h3><label>".$row['Email']."</label><h3> Edad: </h3><label>".$row['Edad']."</label>";
                 $rt .= "</div>";
                 
-                $i = 0;
                 while($row = mysqli_fetch_assoc($rs)){
-                    $rt .= "<div class= 'grupo-control'";
-                    $rt .= "<lable>Fecha: ".$row['Fecha']." Inicio: ".$row['HoraIni'];
+                    $rt .= "<div class= 'grupo'>";
+                    $rt .= "<h3>Nombre: </h3><label>".$row['Nombre']."</label><h3> Correo: </h3><label>".$row['Email']."</label><h3> Edad: </h3><label>".$row['Edad']."</label>";
                     $rt .= "</div>";
                 }
             }
@@ -181,22 +181,25 @@ class Entrenador {
 
     }
 
-    public static function memes($nombre){
-        $usuario = self::buscaUsuario($nombre);
+    public static function imprimeEntrenadores(){
         $app = Aplicacion::getInstance();
         $conn = $app->conexionBD();
-        $query=sprintf("SELECT link_img FROM memes WHERE idPulsera_autor= '%s'", $conn->real_escape_string($usuario->idPulsera()));
+
+        $query =sprintf("SELECT * FROM entrenador");
         $rs = $conn->query($query);
-        $rt=false;
-      
-        if ($rs){
+    
+     if ($rs){
             if($rs->num_rows>0){
+                $row = mysqli_fetch_assoc($rs);
+
+                $rt = "<div class= 'grupo'>";
+                $rt .= "<h3>Nombre: </h3><label>".$row['Nombre']."</label><h3> Correo: </h3><label>".$row['Email']."</label>";
+                $rt .= "</div>";
                 
-                $rt=array();
-                $i = 0;
                 while($row = mysqli_fetch_assoc($rs)){
-                    $rt[$i] = $row['link_img'];
-                    $i = $i + 1;
+                    $rt .= "<div class= 'grupo'>";
+                    $rt .= "<h3>Nombre: </h3><label>".$row['Nombre']."</label><h3> Correo: </h3><label>".$row['Email']."</label>";
+                    $rt .= "</div>";
                 }
             }
             $rs->free();
@@ -206,6 +209,6 @@ class Entrenador {
             exit(); 
         }
         return $rt;
-    }*/
-    
+    }
+
 }

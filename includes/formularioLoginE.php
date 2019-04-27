@@ -1,7 +1,7 @@
 <?php
 
 require_once('form.php');
-require_once('usuario.php');
+require_once('entrenador.php');
 
 
 class formularioLoginE extends Form{
@@ -66,8 +66,9 @@ class formularioLoginE extends Form{
                 
                 if ($entrenador->compruebaPassword($password)) {
                     $_SESSION['login'] = true;
-                    $_SESSION['usuario'] = $entrenador;
-                    $_SESSION['nombre']= $entrenador->nombre();
+                    $_SESSION['esEntrenador'] = true;
+                    $_SESSION['nombre']=$entrenador->nombre();
+                    return "perfil.php";
                 }
                 else {
                     $erroresFormulario[] = "El usuario o el password no coinciden";

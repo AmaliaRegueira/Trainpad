@@ -63,10 +63,9 @@ class formularioLogin extends Form{
                 
                 if ($usuario->compruebaPassword($password)) {
                     $_SESSION['login'] = true;
-                    $_SESSION['usuario'] = $usuario;
-                    var_dump($_SESSION['usuario']);
+                    $_SESSION['id'] = $usuario->idPulsera();
                     $_SESSION['nombre'] = $usuario->nombre();
-                    /*return "index.php";*/
+                    #return "perfil.php";
                 } 
                 else {
                     $erroresFormulario[] = "El usuario o el password no coinciden";

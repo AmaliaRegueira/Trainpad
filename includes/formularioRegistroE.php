@@ -95,11 +95,10 @@ class formularioRegistroE extends Form{
                 $erroresFormulario[] = "El usuario ya existe";
             } else {
                 $_SESSION['login'] = true;
-                $_SESSION['idPulsera'] = $usuario->id();
                 $_SESSION['nombre']= $username;
                 $_SESSION['isAdmin'] =($usuario->rol()==='admin')? true : false;
                 if(!$_SESSION['isAdmin']){
-                    $_SESSION['isTrainer']= true;
+                    $_SESSION['esEntrenador']= true;
                 }
                 //header('Location: index.php');
 
@@ -107,15 +106,12 @@ class formularioRegistroE extends Form{
                 el procesamiento del formularioSubirMeme)*/
 
                 
-                $carpeta = './mysql/img/'.$usuario->id();
-            
-
-                if (!file_exists($carpeta)) {
-                    mkdir($carpeta, 0777, true);
-                }
+                
 
 
-                /*return "index.php";*/
+                return "perfil.php";
+
+                
             }
         }
 

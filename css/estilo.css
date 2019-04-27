@@ -237,6 +237,15 @@ body {
 	padding-top: 2%;
 }
 
+.grupo{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	width: 650px;
+	padding-left: 5%;
+	padding-top: 2%;
+}
+
 .checkbox{
 	display: flex;
 	flex-direction: column;

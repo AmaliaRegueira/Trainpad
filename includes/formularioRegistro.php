@@ -113,7 +113,7 @@ class formularioRegistro extends Form{
                 $erroresFormulario[] = "El usuario ya existe";
             } else {
                 $_SESSION['login'] = true;
-                $_SESSION['idPulsera'] = $idPulsera;
+                $_SESSION['id'] = $idPulsera;
                 $_SESSION['nombre']= $username;
                 $_SESSION['isAdmin'] =($usuario->rol()==='admin')? true : false;
                 //header('Location: index.php');
@@ -122,16 +122,10 @@ class formularioRegistro extends Form{
                 el procesamiento del formularioSubirMeme)*/
 
                 
-                $carpeta = './mysql/img/'.$isPulsera;
-            
-                var_dump($carpeta);
-
-                if (!file_exists($carpeta)) {
-                    mkdir($carpeta, 0777, true);
-                }
+                
 
 
-                return "index.php";
+                return "perfil.php";
             }
         }
 

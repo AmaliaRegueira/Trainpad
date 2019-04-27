@@ -10,15 +10,17 @@ class Usuario {
     private $password;
     private $edad;
     private $rol;
+    private $entrenador;
 
 
-    private function __construct($nombre, $email, $password, $edad, $rol){
+    private function __construct($nombre, $email, $password, $edad, $rol, $entrenador){
         /*$this->idPulsera= $idPulsera;*/
         $this->nombre= $nombre;
         $this->email = $email;
         $this->password = $password;
         $this->edad = $edad;
         $this->rol = $rol;
+        $this->entrenador =$entrenador;
     }
 
     public function idPulsera(){ 
@@ -38,12 +40,24 @@ class Usuario {
 
     public function rol(){ 
         return $this->rol;
-     }
+    }
 
-    
+    public function entrenador(){
+        return $this->entrenador;
+    }
+
+    public function setUserName($name){
+        $this->nombre = $name;
+    }
+
+    public function setEntrenador($nombre){
+        $this->entrenador= $nombre;
+        self::update($this);
+
+    }
 
     public function cambiaPassword($nuevoPassword){
-        $this->password = self::hashPassword($nuevoPassword);
+        $this->password = password_hash($nuevoPassword, PASSWORD_DEFAULT);
     }
 
 
@@ -53,13 +67,14 @@ class Usuario {
         $app = Aplicacion::getInstance();
         $conn = $app->conexionBD();
 
-        $query = sprintf("SELECT * FROM deportista U WHERE U.idPulsera = '%s'", $conn->real_escape_string($idPulsera));
+        $query = sprintf("SELECT * FROM deportistas U WHERE U.idPulsera = '%s'", $conn->real_escape_string($idPulsera));
         $rs = $conn->query($query);
         $result = false;
         if ($rs) {
             if ( $rs->num_rows == 1) {
                 $fila = $rs->fetch_assoc();
-                $user = new Usuario($fila['Nombre'], $fila['Email'], $fila['Password'], $fila['Edad'], $fila['Rol']);
+                $user = new Usuario($fila['Nombre'], $fila['Email'], $fila['Password'], $fila['Edad'], $fila['Rol'], $fila['Entrenador']);
+                
                 $user->idPulsera = $fila['idPulsera'];
                 $result = $user;
             }
@@ -92,7 +107,7 @@ class Usuario {
         if ($user) {
             return false;
         }
-        $user = new Usuario($nombre, $email, password_hash($password, PASSWORD_DEFAULT),$edad, $rol);
+        $user = new Usuario($nombre, $email, password_hash($password, PASSWORD_DEFAULT),$edad, $rol, NULL);
         $user->idPulsera = $idPulsera;
         return self::inserta($user);
     }
@@ -100,7 +115,7 @@ class Usuario {
     private static function inserta($usuario){
         $app = Aplicacion::getInstance();
         $conn = $app->conexionBD();
-        $query=sprintf("INSERT INTO deportista(idPulsera, Nombre, Email, Password, Edad, Rol) VALUES('%s', '%s', '%s', '%s', '%s', '%s')"
+        $query=sprintf("INSERT INTO deportistas(idPulsera, Nombre, Email, Password, Edad, Rol) VALUES('%s', '%s', '%s', '%s', '%s', '%s')"
             , $conn->real_escape_string($usuario->idPulsera)
             , $conn->real_escape_string($usuario->nombre)
             , $conn->real_escape_string($usuario->email)
@@ -115,15 +130,17 @@ class Usuario {
         return $usuario;
     }
     
-    private static function actualiza($usuario){
+    public static function update($usuario, $nombre= NULL){
         $app = Aplicacion::getInstance();
         $conn = $app->conexionBD();
-        $query=sprintf("UPDATE deportista U SET Nombre = '%s', Email='%s', Password='%s', Edad='%s', Rol='%s' WHERE U.idPulsera=%i"
+        var_dump($usuario);
+        $query=sprintf("UPDATE deportistas U SET Nombre = '%s', Email='%s', Password='%s', Edad='%s', Rol='%s', Entrenador='%s' WHERE U.idPulsera='%s'"
             , $conn->real_escape_string($usuario->nombre)
             , $conn->real_escape_string($usuario->email)
             , $conn->real_escape_string($usuario->password)
             , $conn->real_escape_string($usuario->edad)
             , $conn->real_escape_string($usuario->rol)
+            , $conn->real_escape_string($usuario->entrenador)
             , $usuario->idPulsera);
         if ( $conn->query($query) ) {
             if ( $conn->affected_rows != 1) {
@@ -150,14 +167,13 @@ class Usuario {
         if ($rs){
             if($rs->num_rows>0){
                 $row = mysqli_fetch_assoc($rs);
-                $rt = "<div class= 'grupo-control'";
-                $rt .= "<lable>Fecha: ".$row['Fecha']." Inicio: ".$row['HoraIni'];
+                $rt = "<div class= 'grupo'>";
+                $rt .= "<h3>Fecha: </h3><label>".$row['Fecha']."</label><h3> Inicio: </h3><label>".$row['HoraIni']."-".$row['HoraFin']."</label><h3> Actividad: </h3><label>".$row['Deporte']."</label>";
                 $rt .= "</div>";
                 
-                $i = 0;
                 while($row = mysqli_fetch_assoc($rs)){
-                    $rt .= "<div class= 'grupo-control'";
-                    $rt .= "<lable>Fecha: ".$row['Fecha']." Inicio: ".$row['HoraIni'];
+                    $rt .= "<div class= 'grupo'>";
+                    $rt .= "<h3>Fecha: </h3><label>".$row['Fecha']."</label><h3> Inicio: </h3><label>".$row['HoraIni']."-".$row['HoraFin']."</label><h3> Actividad: </h3><label>".$row['Deporte']."</label>";
                     $rt .= "</div>";
                 }
             }
@@ -171,31 +187,5 @@ class Usuario {
 
     }
 
-/*    public static function memes($nombre){
-        $usuario = self::buscaUsuario($nombre);
-        $app = Aplicacion::getInstance();
-        $conn = $app->conexionBD();
-        $query=sprintf("SELECT link_img FROM memes WHERE idPulsera_autor= '%s'", $conn->real_escape_string($usuario->idPulsera()));
-        $rs = $conn->query($query);
-        $rt=false;
-      
-        if ($rs){
-            if($rs->num_rows>0){
-                
-                $rt=array();
-                $i = 0;
-                while($row = mysqli_fetch_assoc($rs)){
-                    $rt[$i] = $row['link_img'];
-                    $i = $i + 1;
-                }
-            }
-            $rs->free();
-        }
-        else{
-            echo "Error al consultar en la BD: (" . $conn->errno . ") " . utf8_encode($conn->error);
-            exit(); 
-        }
-        return $rt;
-    }*/
     
 }

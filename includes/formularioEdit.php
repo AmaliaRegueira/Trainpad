@@ -2,6 +2,7 @@
 
 require_once('form.php');
 require_once('usuario.php');
+require_once('entrenador.php');
 
 class formularioEdit extends Form{
 
@@ -36,11 +37,6 @@ class formularioEdit extends Form{
         $html .= '<div class="grupo-control">';
         $html .='<label>Repita la nueva contraseña:</label>';
         $html .='<input class="control" type="password" name="new-password2"/>';
-        $html .= '</div>';
-
-        $html .= '<div class="grupo-control">';
-        $html .= '<label>Cambia tu foto de perfil</label>';
-        $html .= '<input type="file" name="imagen" accept="image/*"/>';
         $html .= '</div>';
 
         $html .= '<div class="grupo-control"><button type="submit" name="registro">Editar</button></div>';
@@ -79,32 +75,36 @@ class formularioEdit extends Form{
             }
         }
 
-        $imagenPerfil = isset($_FILES['imagen']) ? $_FILES['imagen'] : null;
-
-        //Comprueba si el archivo seleccionado es una imagen y no otra cosa distinta
-        $imageExtension = strtolower(pathinfo($_FILES['imagen']['name'], PATHINFO_EXTENSION));
-
-        //Ha habido un cambio en la imagen
-        $cambioImagen = false;
-        if($imageExtension != ""){
-            
-            if($imageExtension != "jpg"){
-                $erroresFormulario[] = "Solo se permiten archivos con extension: JPG";
-            }
-            else{
-                $cambioImagen = true;
-            }
-        }
-
         
         if (count($erroresFormulario) === 0) {
-            $usuario = Usuario::buscaUsuario($_SESSION['nombre']);
+            $cambiarNombre=false;
+            if(isset($_SESSION['esEntrenador']) && $_SESSION['esEntrenador']){
+                $usuario= Entrenador::searchTrainer($_SESSION['nombre']);
+                if ($username){
+                    $existe = Entrenador::searchTrainer($username)? true : false;
+                        if($existe){
+                             $erroresFormulario[]="Ese nombre ya existe.";
+                            return  $erroresFormulario;
+                        }
+                        else $cambiarNombre =true;
+                }
+            }else{
+                 $usuario = Usuario::buscaUsuario($_SESSION['nombre']);
+                 if ($username){
+                    $existe = Usuario::buscaUsuario($username)? true : false;
+                        if($existe){
+                             $erroresFormulario[]="Ese nombre ya existe.";
+                            return  $erroresFormulario;
+                        }
+                        else $cambiarNombre =true;
+                }
+            }
+           
             $hacerUpdate = false;
             
             if ($new && $old && $new2){
                 if ($usuario->compruebaPassword($old)){
                     $usuario->cambiaPassword($new);
-                    echo "Contraseña cambiada correctamente";
                     $hacerUpdate=true;
                 }
                 else{
@@ -112,57 +112,18 @@ class formularioEdit extends Form{
                     return $erroresFormulario ;
                 }
             }
-            
-            if ($username){
-                $existe = Usuario::buscaUsuario($username)? true : false;
-                if($existe){
-                   $erroresFormulario[]="Ese nombre ya existe.";
-                    return  $erroresFormulario;
-                }
+            $nombre= $usuario->nombre();
+            if ($cambiarNombre){
+
                 $usuario->setUserName($username);
 
                 $hacerUpdate=true;
 
-                $carpetaVieja='./uploads/'.$_SESSION['nombre'];
-                $carpetaNueva='./uploads/'.$username;
-                rename($carpetaVieja, $carpetaNueva);
-
-                echo "Nombre de usuario cambiado correctamente";
-
                 $_SESSION['nombre']=$username;
-            }
-
-            if($cambioImagen){
-                //Nombre temporal de la ruta en la cual se almacena el fichero subido.
-                $imagetemp = $_FILES["imagen"]["tmp_name"];
-
-                //Borramos la foto antigua: ./uploads/nombre/fotoPerfil.Extension
-                if (file_exists('./uploads/'.$_SESSION['nombre'].'/fotoPerfil.jpg')) {
-                    if(unlink('./uploads/'.$_SESSION['nombre'].'/fotoPerfil.jpg')){
-                        if(move_uploaded_file($imagetemp,"uploads/".$_SESSION['nombre']."/fotoPerfil.jpg")){
-                            echo "Imagen cambiada correctamente";
-                        }
-                        else{
-                            $erroresFormulario[]="Ha habido un error al cambiar la imagen.";
-                        }
-                    }
-                    else{
-                       $erroresFormulario[]="Ha habido un error al borrar la imagen antigua.";
-                    }
-                }
-                else{
-                    if(move_uploaded_file($imagetemp,"uploads/".$_SESSION['nombre']."/fotoPerfil.jpg")){
-                        echo "Imagen subida correctamente";
-                    }
-                    else{
-                         $erroresFormulario[]="Ha habido un error al subir la imagen.";
-                    }
-                }
-                
             }
             
             if($hacerUpdate){
-                $usuario->guarda($usuario);
+              if ( $usuario->update($usuario, $nombre)) echo "Cambios realizados correctamente.";
 
             }
             #return "index.php";

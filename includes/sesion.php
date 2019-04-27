@@ -66,8 +66,8 @@ class Sesion {
     private static function interfiereSesion($sesion){
         $app = Aplicacion::getInstance();
         $conn = $app->conexionBD();
-
-        $query = sprintf("SELECT * FROM sesión U WHERE U.idPulsera='%i' AND U.Fecha='%s' AND U.HoraIni BETWEEN '%s' AND '%s'"
+        var_dump($sesion);
+        $query = sprintf("SELECT * FROM sesión U WHERE U.idPulsera='%s' AND U.Fecha='%s' AND ('%s' BETWEEN U.HoraIni AND U.HoraFin OR '%s' BETWEEN U.HoraIni AND U.HoraFin)"
         , $conn->real_escape_string($sesion->idPulsera)
         , $conn->real_escape_string($sesion->fecha())
         , $conn->real_escape_string($sesion->inicio())
@@ -78,7 +78,9 @@ class Sesion {
         if($rs){
             if ($rs->num_rows>0){
                 return true;
+
             }
+            else{var_dump("no entro en el if");}
             
         }
         else{
@@ -97,9 +99,8 @@ class Sesion {
         $existe = self::buscaSesion($sesion);
         
         $interfiere = self::interfiereSesion($sesion);
-        var_dump($existe);
         if ($existe || $interfiere) {
-            var_dump("entra");
+            var_dump("hola");
             return false;
 
         }
@@ -118,9 +119,7 @@ class Sesion {
             , $conn->real_escape_string($sesion->actividad)
             , $conn->real_escape_string($sesion->idPulsera));
 
-        if ( $conn->query($query) ){
-            $sesion->idPulsera = $conn->insert_idPulsera;
-        } else {
+        if ( !$conn->query($query) ){
             echo "Error al insertar en la BD: (" . $conn->errno . ") " . utf8_encode($conn->error);
             exit();
         }
